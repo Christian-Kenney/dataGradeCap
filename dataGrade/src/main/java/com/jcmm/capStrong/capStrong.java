@@ -2,6 +2,7 @@ package com.jcmm.capStrong;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
@@ -9,6 +10,12 @@ import javax.sql.DataSource;
 import java.net.URISyntaxException;
 import java.net.URI;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @SpringBootApplication
 public class capStrong {
 
@@ -16,19 +23,22 @@ public class capStrong {
 		SpringApplication.run(capStrong.class, args);
 	}
 
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+		return builder.sources(capStrong.class);
+	}
+
 	@Bean
-	public DataSource dataSource() throws URISyntaxException {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		URI dbUri = new URI(System.getenv("DATABASE_URL"));
-
-		String username = dbUri.getUserInfo().split(":")[0];
-		String password = dbUri.getUserInfo().split(":")[1];
-		String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
-
-		dataSource.setUrl(dbUrl);
-		dataSource.setUsername(username);
-		dataSource.setPassword(password);
-
-		return dataSource;
+	public WebMvcConfigurer webMvcConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addResourceHandlers(ResourceHandlerRegistry registry) {
+				registry.addResourceHandler("/**")
+						.addResourceLocations("classpath:/META-INF/resources/")
+						.addResourceLocations("classpath:/resources/")
+						.addResourceLocations("classpath:/static/")
+						.addResourceLocations("classpath:/public/")
+						.addResourceLocations("classpath:/frontend/build/");
+			}
+		};
 	}
 }  	
