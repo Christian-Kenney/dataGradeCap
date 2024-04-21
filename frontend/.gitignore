@@ -19,7 +19,7 @@
 .env.production.local
 
 local.properties
-.properties
+*.properties
 application.properties
 
 npm-debug.log*
